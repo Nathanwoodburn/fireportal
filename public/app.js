@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   
-  // Function to navigate to HNS domain
+  // Function to navigate to HNS domain (using new URL format)
   function navigateToHnsDomain() {
     const domain = domainInput.value.trim();
     
@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clean up domain input (remove trailing slashes)
     const cleanDomain = domain.replace(/\/+$/, '');
     
-    // Navigate to the HNS domain
-    window.location.href = `/hns/${cleanDomain}`;
+    // Navigate to the HNS domain using new format
+    window.location.href = `/${cleanDomain}`;
   }
   
   // Check server status

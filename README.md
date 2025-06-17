@@ -57,7 +57,7 @@ npm start
 ```
 
 Then access Handshake+IPFS content via:
-- `http://localhost:3000/hns/example/` (replace "example" with a Handshake domain)
+- `http://localhost:3000/ipfs.act` (replace "ipfs.act" with a Handshake domain)
 - Direct web interface at `http://localhost:3000`
 
 ## Testing
@@ -74,5 +74,4 @@ curl http://localhost:3000/api/status
 ### 2. Testing with Sample Handshake Domains
 You can test with known Handshake domains that have IPFS content:
 
-- `http://localhost:3000/hns/welcome/` - The Handshake welcome page
-- `http://localhost:3000/hns/blog.namebase/` - Namebase blog
+- `http://localhost:3000/ipfs.act` - Example
