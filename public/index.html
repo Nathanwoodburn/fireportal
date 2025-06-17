@@ -6,6 +6,94 @@
     <title>Fire Portal</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="https://woodburn.au/favicon.png" type="image/png">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #6E0E9C;
+            --link-color: #64b5f6;
+            --secondary-text: #aaaaaa;
+            --border-color: #333333;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            color: var(--accent-color);
+        }
+        
+        header p {
+            color: var(--secondary-text);
+        }
+        
+        section {
+            background-color: var(--card-bg-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        h2, h3 {
+            color: var(--accent-color);
+        }
+        
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .search-form input {
+            background-color: #2d2d2d;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        
+        .search-form button {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        code {
+            background-color: #2d2d2d;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        footer {
+            text-align: center;
+            color: var(--secondary-text);
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -24,7 +112,7 @@
                 <div class="example-note">
                     <p>Examples:</p>
                     <ul>
-                        <li><a href="#" class="example-link" data-domain="ipfs.act/">ipfs.act/</a> - Example Page created by Nathan.Woodburn/</li>
+                        <li><a href="#" class="example-link" data-domain="ipfs.act/">ipfs.act/</a> - Example Page created by <b>Nathan.Woodburn/</b></li>
                     </ul>
                 </div>
             </section>
@@ -65,7 +153,7 @@
         </main>
         
         <footer>
-            <p>&copy; 2025 <a href="https://nathan.woodburn.au">Nathan.Woodburn/</a> | <a href="https://git.woodburn.au/nathanwoodburn/fireportal">Git Repo</a></p>
+            <p>&copy; 2025 <a href="https://nathan.woodburn.au" target="_blank">Nathan.Woodburn/</a> | <a href="https://git.woodburn.au/nathanwoodburn/fireportal" target="_blank">Git Repo</a></p>
             <p><small>Status: <span id="status-indicator">Checking...</span></small></p>
         </footer>
     </div>
