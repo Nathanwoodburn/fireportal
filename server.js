@@ -3,7 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
-const { resolveHandshake } = require('./lib/handshake');
+const { resolveHandshake, clearCache } = require('./lib/handshake');
 const { fetchFromIpfs } = require('./lib/ipfs');
 const { PORT } = require('./config');
 
@@ -232,6 +232,45 @@ app.get('/hns/:domain', async (req, res) => {
       message: error.message 
     });
   }
+});
+
+// API route to force refresh IPFS content
+app.get('/api/refresh/:domain', async (req, res) => {
+    try {
+        const domain = req.params.domain;
+        
+        // Validate domain name format
+        if (!domain.match(/^[a-z0-9-_]+(\.[a-z0-9-_]+)*\/?$/i)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid domain format' 
+            });
+        }
+        
+        console.log(`Refreshing content for domain: ${domain}`);
+        // Clear cache for the domain
+        clearCache(domain);
+
+        
+        // Return success response
+        res.json({
+            success: true,
+            message: `Refresh initiated for ${domain}`,
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        console.error('Refresh error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error during refresh operation'
+        });
+    }
+});
+
+// Catch-all route to handle SPA navigation
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start server
