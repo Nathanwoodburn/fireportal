@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Status endpoint
 app.get('/api/status', (req, res) => {
-  res.json({ status: 'online', version: '0.1.1' });
+  res.json({ status: 'online', version: '1.0.0' });
 });
 
 // New route: Handle root domain requests with direct domain format
