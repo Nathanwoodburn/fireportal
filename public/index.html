@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fire Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="https://woodburn.au/favicon.png" type="image/png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Fire Portal</h1>
+            <p>IPFS Gateway for Handshake Domains</p>
+        </header>
+        
+        <main>
+            <section class="search-section">
+                <h2>Access Handshake + IPFS Content</h2>
+                <div class="search-form">
+                    <input type="text" id="domainInput" placeholder="Enter a Handshake domain (e.g., example/)">
+                    <button id="searchBtn">Go</button>
+                </div>
+                <div class="example-note">
+                    <p>Examples:</p>
+                    <ul>
+                        <li><a href="#" class="example-link" data-domain="ipfs.act/">ipfs.act/</a> - Example Page created by Nathan.Woodburn/</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <section class="info-section">
+                <h2>About Fire Portal</h2>
+                <p>
+                    Fire Portal connects Handshake domains to IPFS content, enabling truly decentralized websites.
+                    It resolves Handshake domains, finds their IPFS content identifiers, and serves the content.
+                </p>
+                
+                <h3>How it works</h3>
+                <ol>
+                    <li>A Handshake domain is resolved to get its DNS records</li>
+                    <li>IPFS content identifiers are extracted from TXT records</li>
+                    <li>Content is fetched from the IPFS network</li>
+                    <li>The content is served to your browser</li>
+                </ol>
+                
+                <p>
+                    <strong>URL format:</strong> <code>https://ipfs.woodburn.au/hns/[domain]/[path]</code><br>
+                    Replace <code>[domain]</code> with any Handshake domain and <code>[path]</code> with an optional path.
+                </p>
+            </section>
+
+            <section class="info-section">
+                <h2>How to setup IPFS on your domain</h2>
+                <p>
+                    To set up your Handshake domain to work with IPFS, follow these steps:
+                </p>
+                <ol>
+                    <li>Get the IPFS hash of your content using any IPFS content hosting provider</li>
+                    <li>Update your Handshake domain's DNS records with a TXT record</li>
+                    <li>Use the format: <code>ipfs=Qm...your-ipfs-hash</code></li>
+                    <li>Wait a few minutes and you should be able to see your IPFS content on the domain</li>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 <a href="https://nathan.woodburn.au">Nathan.Woodburn/</a> | <a href="https://git.woodburn.au/nathanwoodburn/fireportal">Git Repo</a></p>
+            <p><small>Status: <span id="status-indicator">Checking...</span></small></p>
+        </footer>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
