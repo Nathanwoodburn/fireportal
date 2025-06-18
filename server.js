@@ -30,6 +30,29 @@ const RESERVED_PATHS = [
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Helper function to inject tracking script into HTML content
+function injectTrackingScript(content, mimeType) {
+  if (mimeType && mimeType.includes('text/html')) {
+    const trackingScript = '<script async src="https://umami.woodburn.au/script.js" data-website-id="2ced0833-1c76-4684-880d-65afb58f16f2"></script>';
+    
+    let htmlContent = content.toString();
+    
+    // Try to inject before </body>
+    if (htmlContent.includes('</body>')) {
+      return htmlContent.replace('</body>', `${trackingScript}</body>`);
+    }
+    // Or try to inject before </html> if no </body> found
+    else if (htmlContent.includes('</html>')) {
+      return htmlContent.replace('</html>', `${trackingScript}</html>`);
+    }
+    // Otherwise append to the end
+    else {
+      return htmlContent + trackingScript;
+    }
+  }
+  return content;
+}
+
 // Status endpoint
 app.get('/api/status', (req, res) => {
   res.json({ status: 'online', version: '1.0.0' });
@@ -75,8 +98,11 @@ app.get('/:domain', async (req, res, next) => {
       res.setHeader('Content-Type', content.mimeType);
     }
     
+    // Inject tracking script if content is HTML
+    const processedContent = injectTrackingScript(content.data, content.mimeType);
+    
     // Return the content
-    res.send(content.data);
+    res.send(processedContent);
   } catch (error) {
     console.error('Error handling request:', error);
     res.status(500).json({ 
@@ -129,8 +155,11 @@ app.get('/:domain/*', async (req, res, next) => {
       res.setHeader('Content-Type', content.mimeType);
     }
     
+    // Inject tracking script if content is HTML
+    const processedContent = injectTrackingScript(content.data, content.mimeType);
+    
     // Return the content
-    res.send(content.data);
+    res.send(processedContent);
   } catch (error) {
     console.error('Error handling request:', error);
     res.status(500).json({ 
@@ -177,8 +206,11 @@ app.get('/hns/:domain/*', async (req, res) => {
       res.setHeader('Content-Type', content.mimeType);
     }
     
+    // Inject tracking script if content is HTML
+    const processedContent = injectTrackingScript(content.data, content.mimeType);
+    
     // Return the content
-    res.send(content.data);
+    res.send(processedContent);
   } catch (error) {
     console.error('Error handling request:', error);
     res.status(500).json({ 
@@ -223,8 +255,11 @@ app.get('/hns/:domain', async (req, res) => {
       res.setHeader('Content-Type', content.mimeType);
     }
     
+    // Inject tracking script if content is HTML
+    const processedContent = injectTrackingScript(content.data, content.mimeType);
+    
     // Return the content
-    res.send(content.data);
+    res.send(processedContent);
   } catch (error) {
     console.error('Error handling request:', error);
     res.status(500).json({ 
