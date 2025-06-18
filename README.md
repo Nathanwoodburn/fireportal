@@ -14,7 +14,7 @@ This gateway allows you to access IPFS content through Handshake domain names. I
 ## Installation
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/fireportal.git
+git clone https://git.woodburn.au/nathanwoodburn/fireportal.git
 cd fireportal
 
 # Install dependencies
@@ -37,7 +37,7 @@ Edit the `.env` file to configure:
 Fire Portal supports multiple methods for resolving Handshake domains:
 
 - `doh`: Uses DNS-over-HTTPS via HNSDoH.com (default, recommended)
-- `dot`: Uses DNS-over-TLS via HNSDoH.com
+- `dot`: Uses DNS-over-TLS via HNSDoH.com (TODO: Implement)
 - `local`: Uses a local Handshake resolver
 
 ### Supported TXT Record Formats
