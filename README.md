@@ -75,3 +75,24 @@ curl http://localhost:3000/api/status
 You can test with known Handshake domains that have IPFS content:
 
 - `http://localhost:3000/ipfs.act` - Example
+
+
+
+## Host proxying
+To proxy Handshake domains to IPFS, you can use the following nginx configuration:
+
+```nginx
+server {
+    listen 80;
+    server_name ~^(?<domain>.+)$;
+
+
+    location / {
+        proxy_pass http://127.0.0.1:3000/$domain;
+
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
