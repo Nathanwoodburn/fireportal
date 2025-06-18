@@ -53,6 +53,51 @@ function injectTrackingScript(content, mimeType) {
   return content;
 }
 
+// Helper function to make links absolute in HTML content
+function makeLinksAbsolute(content, mimeType, domain, subPath = '') {
+  if (!mimeType || !mimeType.includes('text/html')) {
+    return content;
+  }
+
+  let htmlContent = content.toString();
+  const baseUrl = `/${domain}`;
+  
+  // Create base directory for proper path resolution
+  let basePath = '/';
+  if (subPath) {
+    // Remove file part if present
+    const pathParts = subPath.split('/');
+    if (pathParts.length > 1 && !subPath.endsWith('/')) {
+      pathParts.pop();
+    }
+    basePath = `/${pathParts.join('/')}/`;
+  }
+  
+  // Function to resolve paths
+  const resolvePath = (href) => {
+    if (href.startsWith('/')) {
+      // Absolute path within the site - make it absolute to our gateway
+      return `${baseUrl}${href}`;
+    } else if (!href.match(/^(https?:|mailto:|tel:|#|javascript:|data:)/)) {
+      // Relative path - resolve it against current directory
+      return `${baseUrl}${basePath}${href}`;
+    }
+    return href; // Already absolute or special protocol
+  };
+
+  // Replace href attributes (like <a href="...">)
+  htmlContent = htmlContent.replace(/href=["'](.*?)["']/g, (match, href) => {
+    return `href="${resolvePath(href)}"`;
+  });
+
+  // Replace src attributes (like <img src="...">)
+  htmlContent = htmlContent.replace(/src=["'](.*?)["']/g, (match, src) => {
+    return `src="${resolvePath(src)}"`;
+  });
+
+  return htmlContent;
+}
+
 // Status endpoint
 app.get('/api/status', (req, res) => {
   res.json({ status: 'online', version: '1.0.0' });
@@ -98,8 +143,12 @@ app.get('/:domain', async (req, res, next) => {
       res.setHeader('Content-Type', content.mimeType);
     }
     
-    // Inject tracking script if content is HTML
-    const processedContent = injectTrackingScript(content.data, content.mimeType);
+    // Process HTML content: make links absolute and inject tracking script
+    let processedContent = content.data;
+    if (content.mimeType && content.mimeType.includes('text/html')) {
+      processedContent = makeLinksAbsolute(processedContent, content.mimeType, domain, '');
+      processedContent = injectTrackingScript(processedContent, content.mimeType);
+    }
     
     // Return the content
     res.send(processedContent);
@@ -155,8 +204,12 @@ app.get('/:domain/*', async (req, res, next) => {
       res.setHeader('Content-Type', content.mimeType);
     }
     
-    // Inject tracking script if content is HTML
-    const processedContent = injectTrackingScript(content.data, content.mimeType);
+    // Process HTML content: make links absolute and inject tracking script
+    let processedContent = content.data;
+    if (content.mimeType && content.mimeType.includes('text/html')) {
+      processedContent = makeLinksAbsolute(processedContent, content.mimeType, domain, subPath);
+      processedContent = injectTrackingScript(processedContent, content.mimeType);
+    }
     
     // Return the content
     res.send(processedContent);
@@ -206,8 +259,12 @@ app.get('/hns/:domain/*', async (req, res) => {
       res.setHeader('Content-Type', content.mimeType);
     }
     
-    // Inject tracking script if content is HTML
-    const processedContent = injectTrackingScript(content.data, content.mimeType);
+    // Process HTML content: make links absolute and inject tracking script
+    let processedContent = content.data;
+    if (content.mimeType && content.mimeType.includes('text/html')) {
+      processedContent = makeLinksAbsolute(processedContent, content.mimeType, domain, subPath);
+      processedContent = injectTrackingScript(processedContent, content.mimeType);
+    }
     
     // Return the content
     res.send(processedContent);
@@ -255,8 +312,12 @@ app.get('/hns/:domain', async (req, res) => {
       res.setHeader('Content-Type', content.mimeType);
     }
     
-    // Inject tracking script if content is HTML
-    const processedContent = injectTrackingScript(content.data, content.mimeType);
+    // Process HTML content: make links absolute and inject tracking script
+    let processedContent = content.data;
+    if (content.mimeType && content.mimeType.includes('text/html')) {
+      processedContent = makeLinksAbsolute(processedContent, content.mimeType, domain, '');
+      processedContent = injectTrackingScript(processedContent, content.mimeType);
+    }
     
     // Return the content
     res.send(processedContent);
