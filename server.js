@@ -65,16 +65,29 @@ function makeLinksAbsolute(content, mimeType, domain, subPath = '') {
   // Create base directory for proper path resolution
   let basePath = '/';
   if (subPath) {
-    // Remove file part if present
-    const pathParts = subPath.split('/');
-    if (pathParts.length > 1 && !subPath.endsWith('/')) {
-      pathParts.pop();
+    // Improve directory path calculation
+    const lastSegmentHasExtension = subPath.split('/').pop().includes('.');
+    
+    if (lastSegmentHasExtension) {
+      // If the current path is a file, use its directory
+      const pathParts = subPath.split('/');
+      pathParts.pop(); // Remove the file part
+      basePath = pathParts.length ? `/${pathParts.join('/')}/` : '/';
+    } else if (!subPath.endsWith('/')) {
+      // Ensure directory paths end with /
+      basePath = `/${subPath}/`;
+    } else {
+      basePath = `/${subPath}`;
     }
-    basePath = `/${pathParts.join('/')}/`;
   }
   
   // Function to resolve paths
-  const resolvePath = (href) => {
+  const resolvePath = (href, isStylesheet = false) => {
+    // Don't modify stylesheet URLs - keep them relative to preserve internal references
+    if (isStylesheet) {
+      return href;
+    }
+    
     if (href.startsWith('/')) {
       // Absolute path within the site - make it absolute to our gateway
       return `${baseUrl}${href}`;
@@ -85,13 +98,23 @@ function makeLinksAbsolute(content, mimeType, domain, subPath = '') {
     return href; // Already absolute or special protocol
   };
 
-  // Replace href attributes (like <a href="...">)
-  htmlContent = htmlContent.replace(/href=["'](.*?)["']/g, (match, href) => {
-    return `href="${resolvePath(href)}"`;
+  // Handle stylesheet links specially
+  htmlContent = htmlContent.replace(/<link\s+([^>]*rel=['"]stylesheet['"][^>]*)>/gi, (match, attrs) => {
+    // Don't modify the href in stylesheet links
+    return match;
   });
 
-  // Replace src attributes (like <img src="...">)
+  // Replace href attributes in non-stylesheet elements
+  htmlContent = htmlContent.replace(/<a\s+([^>]*href=['"]([^'"]+)['"][^>]*)>/gi, (match, attrs, href) => {
+    return match.replace(`href="${href}"`, `href="${resolvePath(href)}"`) 
+               .replace(`href='${href}'`, `href='${resolvePath(href)}'`);
+  });
+
+  // Replace src attributes carefully - don't touch CSS related ones
   htmlContent = htmlContent.replace(/src=["'](.*?)["']/g, (match, src) => {
+    if (src.endsWith('.css')) {
+      return match; // Don't modify CSS srcs
+    }
     return `src="${resolvePath(src)}"`;
   });
 
