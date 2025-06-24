@@ -14,6 +14,10 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+// Define the main dashboard host
+// This should be configurable via environment variable
+const DASHBOARD_HOST = process.env.DASHBOARD_HOST || '127.0.0.1:3000';
+
 // Define reserved paths that should not be treated as Handshake domains
 const RESERVED_PATHS = [
   'api',
@@ -54,13 +58,14 @@ function injectTrackingScript(content, mimeType) {
 }
 
 // Helper function to make links absolute in HTML content
-function makeLinksAbsolute(content, mimeType, domain, subPath = '') {
+function makeLinksAbsolute(content, mimeType, domain, subPath = '', isDirectAccess = false) {
   if (!mimeType || !mimeType.includes('text/html')) {
     return content;
   }
 
   let htmlContent = content.toString();
-  const baseUrl = `/${domain}`;
+  // If direct access (via subdomain), don't prefix links with domain
+  const baseUrl = isDirectAccess ? '' : `/${domain}`;
   
   // Create base directory for proper path resolution
   let basePath = '/';
@@ -120,6 +125,79 @@ function makeLinksAbsolute(content, mimeType, domain, subPath = '') {
 
   return htmlContent;
 }
+
+// Helper function to handle direct domain access
+async function handleDirectDomainAccess(req, res, domain) {
+  try {
+    const subPath = req.path || '';
+    
+    console.log(`Direct access for domain: ${domain}, path: ${subPath}`);
+    
+    // Resolve Handshake domain to get IPFS CID
+    const cid = await resolveHandshake(domain);
+    
+    if (!cid) {
+      console.warn(`No IPFS CID found for domain: ${domain}`);
+      return res.status(404).json({ 
+        error: 'Domain not found or has no IPFS record',
+        domain: domain
+      });
+    }
+    
+    console.log(`Resolved ${domain} to IPFS CID: ${cid}`);
+    
+    // Fetch content from IPFS
+    const path = subPath.startsWith('/') ? subPath.substring(1) : subPath;
+    const content = await fetchFromIpfs(cid, path);
+    
+    if (!content) {
+      return res.status(404).json({ 
+        error: 'Content not found on IPFS network',
+        cid: cid,
+        path: path
+      });
+    }
+    
+    // Set appropriate content type
+    if (content.mimeType) {
+      res.setHeader('Content-Type', content.mimeType);
+    }
+    
+    // Process HTML content: make links absolute and inject tracking script
+    // Note: isDirectAccess=true so links won't be prefixed with domain
+    let processedContent = content.data;
+    if (content.mimeType && content.mimeType.includes('text/html')) {
+      processedContent = makeLinksAbsolute(processedContent, content.mimeType, domain, path, true);
+      processedContent = injectTrackingScript(processedContent, content.mimeType);
+    }
+    
+    // Return the content
+    return res.send(processedContent);
+  } catch (error) {
+    console.error('Error handling direct domain access:', error);
+    return res.status(500).json({ 
+      error: 'Server error processing request',
+      message: error.message 
+    });
+  }
+}
+
+// Middleware to check if request is for direct domain access
+app.use(async (req, res, next) => {
+  const host = req.get('host');
+  
+  // If this is not the main dashboard host, treat it as direct domain access
+  if (host && host !== DASHBOARD_HOST) {
+    // Extract domain from the hostname
+    // This assumes the domain is the full hostname or a subdomain of your gateway
+    const domain = host.split(':')[0]; // Remove port if present
+    
+    return handleDirectDomainAccess(req, res, domain);
+  }
+  
+  // Continue with normal processing for dashboard host
+  next();
+});
 
 // Status endpoint
 app.get('/api/status', (req, res) => {
@@ -395,4 +473,5 @@ app.get('*', (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Fire Portal server running on port ${PORT}`);
+  console.log(`Dashboard host: ${DASHBOARD_HOST}`);
 });
