@@ -84,12 +84,13 @@ To proxy Handshake domains to IPFS, you can use the following nginx configuratio
 ```nginx
 server {
     listen 80;
-    server_name ~^(?<domain>.+)$;
+    server_name _;  # Catch-all for all domains
 
 
     location / {
-        proxy_pass http://127.0.0.1:3000/$domain;
+        proxy_pass http://127.0.0.1:3000;
 
+        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
