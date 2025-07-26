@@ -3,7 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const path = require('path');
-const { resolveHandshake, clearCache } = require('./lib/handshake');
+const { resolveHandshake, clearCache, clearIpnsCache } = require('./lib/handshake');
 const { fetchFromIpfs } = require('./lib/ipfs');
 const { PORT } = require('./config');
 
@@ -530,6 +530,39 @@ app.get('/api/refresh/:domain', async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: 'Server error during refresh operation'
+        });
+    }
+});
+
+// New API route to refresh IPNS cache specifically
+app.get('/api/refresh-ipns/:ipnsName', async (req, res) => {
+    try {
+        const ipnsName = req.params.ipnsName;
+        
+        // Validate IPNS name format (basic validation)
+        if (!ipnsName.match(/^[a-zA-Z0-9]+$/)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid IPNS name format' 
+            });
+        }
+        
+        console.log(`Refreshing IPNS cache for: ${ipnsName}`);
+        // Clear IPNS cache
+        clearIpnsCache(ipnsName);
+        
+        // Return success response
+        res.json({
+            success: true,
+            message: `IPNS cache refresh initiated for ${ipnsName}`,
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        console.error('IPNS refresh error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error during IPNS refresh operation'
         });
     }
 });
